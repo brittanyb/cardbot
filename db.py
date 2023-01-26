@@ -115,6 +115,7 @@ class CardDatabase():
             # Get current team member count
             self.db_cursor.execute("SELECT * FROM competition WHERE user1 = ?", (team_leader,))
             team_values = self.db_cursor.fetchall()
+            print(f"invite_user: competition db - {team_values}")
             if not team_values:
                 return False
             team_count = 0
@@ -126,8 +127,10 @@ class CardDatabase():
             team_name = team_values[0][0]
             self.db_cursor.execute("SELECT * FROM competition WHERE team_name != ?", (team_name,))
             other_teams = self.db_cursor.fetchall()
+            print(f"invite_user: other competitors db - {other_teams}")
             if invitee in other_teams:
                 return False
+            print(f"invite_user: User not in other team")
             # Get whether user can fit on the team/invite list
             self.db_cursor.execute("SELECT * FROM invitations")
             invite_values = self.db_cursor.fetchall()
@@ -140,9 +143,11 @@ class CardDatabase():
                 return False
             if (invite_count > 4):
                 return False
+            print(f"invite_user: User counts acceptable")
             # Get if user has a pending invitation already
             if invitee in team_invites:
                 return False
+            print(f"invite_user: Checks passed to join {team_name}")
             # Build the invite list with the user in it
             new_invite_values = ['None'] * 6
             invite_set = False
@@ -153,15 +158,18 @@ class CardDatabase():
                 else:
                     new_invite_values[index] = team_invites[index]
             new_invite_values[5] = team_name
+            print(f"invite_user: Invite list rebuilt - {new_invite_values}")
             self.db_cursor.execute("UPDATE invitations SET invite1 = ?, invite2 = ?, invite3 = ?, invite4 = ?, invite5 = ? WHERE team_name = ?", new_invite_values)
             self.db.commit()
             return team_name
         except Exception as e:
+            print(f"invite_user: ERROR - {e}")
             return False
 
     def accept_invite(self, user):
         try:
             # Is the user invited to join the team?
+            print(f"accept_invite: {user} invokes.")
             self.db_cursor.execute("SELECT * FROM invitations WHERE invite1 = ? OR invite2 = ? OR invite3 = ? OR invite4 = ? OR invite5 = ?", (user, user, user, user, user))
             invite_values = self.db_cursor.fetchall()
             team_name = invite_values[0][0]
@@ -172,6 +180,8 @@ class CardDatabase():
                     user_invited = True
             if user_invited == False:
                 return False
+            print(f"accept_invite: invitation db - {invite_values}")
+            print(f"accept_invite: Checks passed to join {team_name}")
             # Re-build the invite list
             new_team_invites = ['None'] * 5
             for index, invite in enumerate(team_invites):
@@ -183,9 +193,11 @@ class CardDatabase():
                     user_found = True
             new_team_invites.append('None')
             new_team_invites.append(team_name)
+            print(f"accept_invite: Invite list rebuilt - {new_team_invites}")
             # Re-build the team list
             self.db_cursor.execute("SELECT * FROM competition WHERE team_name = ?", (team_name,))
             team_values = self.db_cursor.fetchall()
+            print(f"accept_invite: competition db - {team_values}")
             team_members = team_values[0][2:8]
             new_team_members = ['None'] * 6
             for index, team_member in enumerate(team_members):
@@ -196,12 +208,14 @@ class CardDatabase():
                     new_team_members[index] = user
                     user_added = True
             new_team_members.append(team_name)
+            print(f"accept_invite: Team list rebuilt - {new_team_members}")
             # Update the database entries
             self.db_cursor.execute("UPDATE invitations SET invite1 = ?, invite2 = ?, invite3 = ?, invite4 = ?, invite5 = ? WHERE team_name = ?", new_team_invites)
             self.db_cursor.execute("UPDATE competition SET user1 = ?, user2 = ?, user3 = ?, user4 = ?, user5 = ?, user6 = ? WHERE team_name = ?", new_team_members)
             self.db.commit()
             return team_name
         except Exception as e:
+            print(f"accept_invite: ERROR - {e}")
             return False
 
     def decline_invite(self, user):
