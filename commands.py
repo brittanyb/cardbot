@@ -235,6 +235,14 @@ class CardCommands(commands.Cog):
             await ctx.send(f"Added sacrifices.")
             return
         await ctx.send("Could not add sacrifices.")
+    
+    @commands.command()
+    @commands.has_role("Admin")
+    async def set_team_name(self, ctx, old_name, new_name):
+        if self.db.set_team_name(old_name, new_name):
+            await ctx.send(f"{old_name} reset to {new_name}")
+            return
+        await ctx.send("Could not update team name")
 
     @commands.command()
     @commands.has_role("Admin")
@@ -276,7 +284,7 @@ Team Leader commands:
 !decline_team_invite - Do not join the team that you have a pending invite for.
 !draw_card \"tier\" - Draws a card from \"tier\" (e.g. easy, medium) table and adds it to the active deck of cards.
 !list_cards - Lists all of your teams cards.
-!sacrifice_card - When available, a card may be sacrificed from your active deck, so that a new card may be received.
+!sacrifice_card \"Card Name\" - When available, a card may be sacrificed from your active deck, so that a new card may be received.
 !leaderboard - View all teams and their points.
 !list_team - List the team that you are on, and their points.  
 ```"""

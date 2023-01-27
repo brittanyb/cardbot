@@ -177,10 +177,24 @@ class CardDatabase():
             team_name = team_values[0][0]
             db_values = [new_team_name, team_name]
             self.db_cursor.execute("UPDATE competition SET team_name = ? WHERE team_name = ?", db_values)
+            self.db_cursor.execute("UPDATE cards SET team_name = ? WHERE team_name = ?", db_values)
+            self.db_cursor.execute("UPDATE invitations SET team_name = ? WHERE team_name = ?", db_values)
             self.db.commit()
             return new_team_name
         except Exception as e:
             print(f"reset_team_name: ERROR - {e}")
+            return False
+
+    def set_team_name(self, old_name, new_name):
+        try:
+            db_values = [old_name, new_name]
+            self.db_cursor.execute("UPDATE competition SET team_name = ? WHERE team_name = ?", db_values)
+            self.db_cursor.execute("UPDATE cards SET team_name = ? WHERE team_name = ?", db_values)
+            self.db_cursor.execute("UPDATE invitations SET team_name = ? WHERE team_name = ?", db_values)
+            self.db.commit()
+            return new_name
+        except Exception as e:
+            print(f"set_team_name ERROR - {e}")
             return False
 
     def remove_member(self, user):
