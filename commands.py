@@ -117,6 +117,23 @@ class CardCommands(commands.Cog):
             await ctx.send(team_info)
             return
         await ctx.send("Could not get team information.")
+    
+    @commands.command()
+    @commands.has_role("Admin")
+    async def remove_member(self, ctx, team_member):
+        team_name = self.db.remove_member(team_member)
+        if team_name:
+            await ctx.send(f"{team_member} has been removed from {team_name}.")
+            return
+        await ctx.send("Could not remove team member.")
+
+    @commands.command()
+    @commands.has_role("Admin")
+    async def redeem_card_sacrifice(self, ctx):
+        if self.db.redeem_card_sacrifice():
+            await ctx.send(f"One card has been added to team sacrifices.")
+            return
+        await ctx.send("Could not redeem card sacrifice.")
 
     @commands.command(pass_context=True)
     @commands.has_role("Team Leader")
@@ -136,6 +153,16 @@ class CardCommands(commands.Cog):
             await ctx.send(f"<@{invited_user.id}>, you have been invited to join {team_name}! To accept, type !accept_team_invite. To decline, type !decline_team_invite.")
             return
         await ctx.send("Could not invite user to join team.")
+
+    @commands.command()
+    @commands.has_role("Team Leader")
+    async def reset_team_name(self, ctx, team_name):
+        user = ctx.message.author.id
+        team_name = self.db.reset_team_name(user, team_name)
+        if team_name:
+            await ctx.send(f"Your team's new name is now {team_name}")
+            return
+        await ctx.send("Could not reset team name.")
 
     @commands.command()
     async def accept_team_invite(self, ctx):
@@ -181,7 +208,6 @@ class CardCommands(commands.Cog):
             return
         await ctx.send("Could not list competitors.")
 
-    
     @commands.command()
     async def list_team(self, ctx):
         user = ctx.message.author.id
@@ -192,12 +218,21 @@ class CardCommands(commands.Cog):
         await ctx.send("Could not list team.")
 
     @commands.command()
+    async def sacrifice_card(self, ctx, card_name):
+        user = ctx.message.author.id
+        team_name = self.db.sacrifice_card(user, card_name)
+        if team_name:
+            await ctx.send(f"{team_name} have sacrificed their card - {card_name}")
+            return
+        await ctx.send("Could not sacrifice card.")
+
+    @commands.command()
     @commands.has_role("Admin")
     async def admin_commands(self, ctx):
         adm_cmds = """```
 Admin commands:
-!create_table \\"table_name\\" -- Used to create an item table, e.g. an \\"easy\\" or \\"medium\\" table for potential item drops.
-!delete_table \\"table_name\" -- Deletes a previously created table.
+!create_table \"table_name\" -- Used to create an item table, e.g. an \"easy\" or \"medium\" table for potential item drops.
+!delete_table \"table_name\" -- Deletes a previously created table.
 !list_tables -- Lists all existing tables in the database.
 !add_item \"table_name\" \"item_name\" -- Adds \"item_name\" to previously created \"table_name\", as a potential item drop.
 !delete_item \"table_name\" \"item_name\" -- Deletes \"item_name\" from previous \"table_name\".
@@ -207,7 +242,9 @@ Admin commands:
 !add_points @discord_user #points -- Gives a set number of #points to the team that @discord_user is in. For example, !add_points @Brittany 5
 !remove_points @discord_user #points -- Removes a set number of #points from the team that @discord_user is in.
 !verify_card @discord_user \"card_name\" -- Redeems an 'active' card from @discord_user's team, and moves it to the 'used' card deck. Redeems the cards points automatically.
-!get_team_info @discord_user -- Lists the team of @discord_user, along with the points and cards
+!get_team_info @discord_user -- Lists the team of @discord_user, along with the points and cards.
+!remove_member @discord_user -- Removes a user from their team.
+!redeem_card_sacrifice -- Allows all teams to sacrifice a card from their deck.
 ```"""
         await ctx.send(adm_cmds)
 
@@ -216,8 +253,9 @@ Admin commands:
     async def team_leader_commands(self, ctx):
         ldr_cmds = """```
 Team Leader commands:
-!create_team \"team_name\" -- Used to create a team of up to 6 players for an ongoing competition.
+!create_team \"Team Name\" -- Used to create a team of up to 6 players for an ongoing competition.
 !create_team_invite @discord_user -- Invites @discord_user to your team.
+!reset_team_name \"Team Name\" -- Used to reset a team's name.
 ```"""
         await ctx.send(ldr_cmds)
 
@@ -228,7 +266,20 @@ Team Leader commands:
 !decline_team_invite - Do not join the team that you have a pending invite for.
 !draw_card \"tier\" - Draws a card from \"tier\" (e.g. easy, medium) table and adds it to the active deck of cards.
 !list_cards - Lists all of your teams cards.
+!sacrifice_card - When available, a card may be sacrificed from your active deck, so that a new card may be received.
 !leaderboard - View all teams and their points.
 !list_team - List the team that you are on, and their points.  
 ```"""
         await ctx.send(cmds)
+
+# Temporary commands
+
+@commands.command()
+@commands.has_role("Admin")
+async def add_sacrifices(self, ctx, card_name):
+    user = ctx.message.author.id
+    team_name = self.db.sacrifice_card(user, card_name)
+    if team_name:
+        await ctx.send(f"Added sacrifices.")
+        return
+    await ctx.send("Could not add sacrifices.")
