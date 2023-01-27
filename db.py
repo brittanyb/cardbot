@@ -204,6 +204,7 @@ class CardDatabase():
             print(f"remove_member: {new_team_members}")
             self.db_cursor.execute("UPDATE competition SET user1 = ?, user2 = ?, user3 = ?, user4 = ?, user5 = ?, user6 = ? WHERE team_name = ?", new_team_members)
             self.db.commit()
+            return team_name
         except Exception as e:
             print(f"remove_member: ERROR - {e}")
             return False
@@ -357,6 +358,8 @@ class CardDatabase():
             new_active_cards.append('None')
             new_active_cards.append(team_name)
             self.db_cursor.execute("UPDATE cards SET active_card1 = ?, active_card2 = ?, active_card3 = ?, active_card4 = ?, active_card5 = ? WHERE team_name = ?", new_active_cards)
+            values = [sacrifices, team_name]
+            self.db_cursor.execute("UPDATE competition SET sacrifices = ? WHERE team_name = ?", values)
             self.db.commit()
             return team_name
         except Exception as e:
