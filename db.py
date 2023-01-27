@@ -187,11 +187,13 @@ class CardDatabase():
         try:
             self.db_cursor.execute("SELECT * FROM competition WHERE user2 = ? OR user3 = ? OR user4 = ? OR user5 = ? OR user6 = ?", (user, user, user, user, user))
             team_values = self.db_cursor.fetchall()
+            print(team_values)
             team_name = team_values[0][0]
             team_members = team_values[0][2:8]
             new_team_members = ['None'] * 6
             for index, invite in enumerate(team_members):
                 new_team_members[index] = team_members[index]
+            print("enumerated team members")
             member_removed = False
             for index, member in enumerate(new_team_members):
                 if member == user and member_removed == False:
@@ -340,7 +342,7 @@ class CardDatabase():
                 print("No sacrifices.")
                 return False
             sacrifices = sacrifices - 1
-            self.db_cursor.execute("SELECT * FROM cards WHERE team_name = ?)", (team_name,))
+            self.db_cursor.execute("SELECT * FROM cards WHERE team_name = ?", (team_name,))
             cards = self.db_cursor.fetch_all()
             active_cards = cards[0][1:6]
             card_found = False
