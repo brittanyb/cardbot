@@ -343,7 +343,7 @@ class CardDatabase():
                 return False
             sacrifices = sacrifices - 1
             self.db_cursor.execute("SELECT * FROM cards WHERE team_name = ?", (team_name,))
-            cards = self.db_cursor.fetch_all()
+            cards = self.db_cursor.fetchall()
             active_cards = cards[0][1:6]
             card_found = False
             new_active_cards = list(active_cards)

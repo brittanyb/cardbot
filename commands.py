@@ -120,8 +120,8 @@ class CardCommands(commands.Cog):
     
     @commands.command()
     @commands.has_role("Admin")
-    async def remove_member(self, ctx, team_member):
-        team_name = self.db.remove_member(team_member)
+    async def remove_member(self, ctx, team_member: discord.Member):
+        team_name = self.db.remove_member(team_member.id)
         if team_name:
             await ctx.send(f"{team_member} has been removed from {team_name}.")
             return
