@@ -177,6 +177,7 @@ class CardDatabase():
             team_name = team_values[0][0]
             db_values = [new_team_name, team_name]
             self.db_cursor.execute("UPDATE competition SET team_name = ? WHERE team_name = ?", db_values)
+            self.db.commit()
             return new_team_name
         except Exception as e:
             print(f"reset_team_name: ERROR - {e}")
@@ -184,7 +185,7 @@ class CardDatabase():
 
     def remove_member(self, user):
         try:
-            self.db_cursor.execute("SELECTION * FROM competition WHERE user2 = ? OR user3 = ? OR user4 = ? OR user5 = ? OR user6 = ?", (user, user, user, user, user))
+            self.db_cursor.execute("SELECT * FROM competition WHERE user2 = ? OR user3 = ? OR user4 = ? OR user5 = ? OR user6 = ?", (user, user, user, user, user))
             team_values = self.db_cursor.fetchall()
             team_name = team_values[0][0]
             team_members = team_values[0][2:8]
@@ -198,6 +199,7 @@ class CardDatabase():
                     member_removed = True
             new_team_members.append('None')
             new_team_members.append(team_name)
+            print(f"remove_member: {new_team_members}")
             self.db_cursor.execute("UPDATE competition SET user1 = ?, user2 = ?, user3 = ?, user4 = ?, user5 = ?, user6 = ? WHERE team_name = ?", new_team_members)
             self.db.commit()
         except Exception as e:

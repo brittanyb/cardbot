@@ -276,10 +276,8 @@ Team Leader commands:
 
 @commands.command()
 @commands.has_role("Admin")
-async def add_sacrifices(self, ctx, card_name):
-    user = ctx.message.author.id
-    team_name = self.db.sacrifice_card(user, card_name)
-    if team_name:
+async def add_sacrifices(self, ctx):
+    if self.db.add_sacrifices():
         await ctx.send(f"Added sacrifices.")
         return
     await ctx.send("Could not add sacrifices.")
