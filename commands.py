@@ -226,6 +226,16 @@ class CardCommands(commands.Cog):
             return
         await ctx.send("Could not sacrifice card.")
 
+    # Temporary commands
+
+    @commands.command()
+    @commands.has_role("Admin")
+    async def add_sacrifices(self, ctx):
+        if self.db.add_sacrifices():
+            await ctx.send(f"Added sacrifices.")
+            return
+    await ctx.send("Could not add sacrifices.")
+
     @commands.command()
     @commands.has_role("Admin")
     async def admin_commands(self, ctx):
@@ -271,13 +281,3 @@ Team Leader commands:
 !list_team - List the team that you are on, and their points.  
 ```"""
         await ctx.send(cmds)
-
-# Temporary commands
-
-@commands.command()
-@commands.has_role("Admin")
-async def add_sacrifices(self, ctx):
-    if self.db.add_sacrifices():
-        await ctx.send(f"Added sacrifices.")
-        return
-    await ctx.send("Could not add sacrifices.")
