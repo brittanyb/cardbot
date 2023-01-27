@@ -125,7 +125,7 @@ class CardDatabase():
                     team_count += 1
             # Get if user is already part of another team
             team_name = team_values[0][0]
-            self.db_cursor.execute("SELECT * FROM competition", (team_name,))
+            self.db_cursor.execute("SELECT * FROM competition")
             other_teams = self.db_cursor.fetchall()
             print(f"invite_user: other competitors db - {other_teams}")
             if invitee in other_teams:
