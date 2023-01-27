@@ -234,7 +234,7 @@ class CardCommands(commands.Cog):
         if self.db.add_sacrifices():
             await ctx.send(f"Added sacrifices.")
             return
-    await ctx.send("Could not add sacrifices.")
+        await ctx.send("Could not add sacrifices.")
 
     @commands.command()
     @commands.has_role("Admin")
