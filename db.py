@@ -326,14 +326,18 @@ class CardDatabase():
 
     def sacrifice_card(self, user, card_name):
         try:
+            print("sacrifice_card")
             users = [user] * 6
             self.db_cursor.execute("SELECT * FROM competition WHERE user1 = ? or user2 = ? or user3 = ? or user4 = ? or user5 = ? or user6 = ?", users)
             team_values = self.db_cursor.fetchall()
             if not team_values:
+                print("No team values")
                 return False
             team_name = team_values[0][0]
             sacrifices = team_values[0][8]
+            print(f"Team found: {team_name}, Sacrifices: {sacrifices}")
             if sacrifices <= 0:
+                print("No sacrifices.")
                 return False
             sacrifices = sacrifices - 1
             self.db_cursor.execute("SELECT * FROM cards WHERE team_name = ?)", (team_name,))
@@ -346,6 +350,7 @@ class CardDatabase():
                     new_active_cards.pop(index)
                     card_found = True
             if card_found == False:
+                print("Card not found")
                 return False
             new_active_cards.append('None')
             new_active_cards.append(team_name)
