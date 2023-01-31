@@ -434,10 +434,10 @@ class CardDatabase():
                 if card != 'None':
                     active_card_count += 1
             used_card_count = 0
-            for card in  used_cards:
+            for card in used_cards:
                 if card != 'None':
                     used_card_count += 1
-            if (active_card_count + used_card_count > 14):
+            if (used_card_count > 14):
                 return False, False
             if (active_card_count > 4):
                 return False, False
@@ -477,6 +477,14 @@ class CardDatabase():
             cards = self.db_cursor.fetchall()
             active_cards = cards[0][1:6]
             if card_name not in active_cards:
+                return False, False, False
+            # Get redeemed card amount
+            used_cards = cards[0][6:21]
+            used_card_count = 0
+            for card in used_cards:
+                if card != 'None':
+                    used_card_count += 1
+            if used_card_count > 14:
                 return False, False, False
             # Get the points for the card
             easy = [x[0] for x in self.list_items('easy')]
