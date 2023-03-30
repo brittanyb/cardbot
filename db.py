@@ -75,7 +75,7 @@ class CardDatabase():
                 return False
             self.db_cursor.execute("CREATE TABLE competition (team_name, points, user1, user2, user3, user4, user5, user6, sacrifices)")
             self.db_cursor.execute("CREATE TABLE invitations (team_name, invite1, invite2, invite3, invite4, invite5)")
-            self.db_cursor.execute("CREATE TABLE cards (team_name, active_card1, active_card2, active_card3, active_card4, active_card5, used_card1, used_card2, used_card3, used_card4, used_card5, used_card6, used_card7, used_card8, used_card9, used_card10, used_card11, used_card12, used_card13, used_card14, used_card15)")
+            self.db_cursor.execute("CREATE TABLE cards (team_name, active_card1, active_card2, active_card3, active_card4, active_card5, used_card1, used_card2, used_card3, used_card4, used_card5, used_card6, used_card7, used_card8, used_card9, used_card10, used_card11, used_card12, used_card13, used_card14, used_card15, sacrificed_card1, sacrificed_card2, sacrificed_card3, sacrificed_card4, sacrificed_card5)")
             return True
         except Exception as e:
             return False
@@ -99,12 +99,12 @@ class CardDatabase():
             team_name_exists = self.db_cursor.fetchall()
             if team_name_exists:
                 return False
-            team_values = [team_name, 0, user, 'None', 'None', 'None', 'None', 'None', 'None']
+            team_values = [team_name, 0, user, 'None', 'None', 'None', 'None', 'None', 0]
             invitation_values = [team_name, 'None', 'None', 'None', 'None', 'None']
-            card_values = [team_name, 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None']
+            card_values = [team_name, 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None']
             self.db_cursor.execute("INSERT INTO competition VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", team_values)
             self.db_cursor.execute("INSERT INTO invitations VALUES (?, ?, ?, ?, ?, ?)", invitation_values)
-            self.db_cursor.execute("INSERT INTO cards VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", card_values)
+            self.db_cursor.execute("INSERT INTO cards VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", card_values)
             self.db.commit()
             return True
         except Exception as e:
@@ -332,15 +332,6 @@ class CardDatabase():
             print(f"redeem_card_sacrifice: ERROR - {e}")
             return False
 
-    def add_sacrifices(self):
-        try:
-            self.db_cursor.execute("ALTER TABLE competition ADD sacrifices DEFAULT -2")
-            self.db.commit()
-            return True
-        except Exception as e:
-            print(f"add_sacrifices: ERROR - {e}")
-            return False
-
     def sacrifice_card(self, user, card_name):
         try:
             print("sacrifice_card")
@@ -373,6 +364,16 @@ class CardDatabase():
             new_active_cards.append(team_name)
             self.db_cursor.execute("UPDATE cards SET active_card1 = ?, active_card2 = ?, active_card3 = ?, active_card4 = ?, active_card5 = ? WHERE team_name = ?", new_active_cards)
             values = [sacrifices, team_name]
+            # Update the sacrificed card list
+            sacrificed_cards = cards[0][21:26]
+            card_added = False
+            new_sacrificed_cards = list(sacrificed_cards)
+            for index, card in enumerate(sacrificed_cards):
+                if card == 'None' and card_added == False:
+                    new_sacrificed_cards[index] = card_name
+                    card_added = True
+            new_sacrificed_cards.append(team_name)
+            self.db_cursor.execute("UPDATE cards SET sacrificed_card1 = ?, sacrificed_card2 = ?, sacrificed_card3 = ?, sacrificed_card4 = ?, sacrificed_card5 = ? WHERE team_name = ?", new_sacrificed_cards)
             self.db_cursor.execute("UPDATE competition SET sacrifices = ? WHERE team_name = ?", values)
             self.db.commit()
             return team_name
@@ -447,6 +448,9 @@ class CardDatabase():
             available_items = [x for x in items if x not in all_cards]
             if not available_items:
                 return False, False
+            # Get whether the card has already been sacrificed
+            sacrificed_cards = card_values[21:26]
+            available_items = [x for x in items if x not in sacrificed_cards]
             row_number = random.randint(0,len(available_items)-1)
             card_name = available_items[row_number]
             # Add the card to the active deck
@@ -551,6 +555,8 @@ class CardDatabase():
                 response_str += f"Active card {index + 1}: {card}\n"
             for index, card in enumerate(card_values[0][6:21]):
                 response_str += f"Redeemed card {index + 1}: {card}\n"
+            for index, card in enumerate(card_values[0][21:26]):
+                response_str += f"Sacrificed card {index + 1}: {card}\n"
             response_str += "```\n"
             return response_str
         except Exception as e:

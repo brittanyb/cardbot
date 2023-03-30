@@ -99,7 +99,7 @@ class CardCommands(commands.Cog):
         await ctx.send("Could not remove points.")
 
     @commands.command()
-    @commands.has_role("Admin")
+    @commands.has_any_role("Admin", "Moderator")
     async def verify_card(self, ctx, user: discord.Member, card_name):
         user = user.id
         team_name, points, total_points = self.db.verify_card(user, card_name)
