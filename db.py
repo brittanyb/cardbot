@@ -429,7 +429,7 @@ class CardDatabase():
             card_values = self.db_cursor.fetchall()
             active_cards = card_values[0][1:6]
             used_cards = card_values[0][6:21]
-            all_cards = card_values[0][1:21]
+            all_cards = card_values[0][1:26]
             active_card_count = 0
             for card in active_cards:
                 if card != 'None':
@@ -448,9 +448,6 @@ class CardDatabase():
             available_items = [x for x in items if x not in all_cards]
             if not available_items:
                 return False, False
-            # Get whether the card has already been sacrificed
-            sacrificed_cards = card_values[21:26]
-            available_items = [x for x in items if x not in sacrificed_cards]
             row_number = random.randint(0,len(available_items)-1)
             card_name = available_items[row_number]
             # Add the card to the active deck
