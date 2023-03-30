@@ -501,9 +501,9 @@ class CardDatabase():
             elif card_name in hard:
                 points = 5
             elif card_name in elite:
-                points = 8
-            elif card_name in grandmaster:
                 points = 10
+            elif card_name in grandmaster:
+                points = 15
             else:
                 return False, False, False
             # Give the users team some points
