@@ -331,6 +331,24 @@ class CardDatabase():
         except Exception as e:
             print(f"redeem_card_sacrifice: ERROR - {e}")
             return False
+        
+    def give_sacrifices(self, user):
+        try:
+            users = [user] * 6
+            self.db_cursor.execute("SELECT * FROM competition WHERE user1 = ? or user2 = ? or user3 = ? or user4 = ? or user5 = ? or user6 = ?", users)
+            team_values = self.db_cursor.fetchall()
+            if not team_values:
+                print("No team values")
+                return False
+            team_name = team_values[0][0]
+            sacrifices = team_values[0][8]
+            new_sacrifices = sacrifices + 1
+            values = [new_sacrifices, team_name]
+            self.db_cursor.execute("UPDATE competition SET sacrifices = ? WHERE team_name = ?", values)
+            self.db.commit()
+        except Exception as e:
+            print(f"give_sacrifices: ERROR - {e}")
+            return False
 
     def sacrifice_card(self, user, card_name):
         try:

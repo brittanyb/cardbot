@@ -135,6 +135,15 @@ class CardCommands(commands.Cog):
             return
         await ctx.send("Could not redeem card sacrifice.")
 
+    @commands.command()
+    @commands.has_role("Admin")
+    async def give_sacrifices(self, ctx, team_member: discord.Member):
+        team_name = self.db.give_sacrifices(team_member.id)
+        if team_name:
+            await ctx.send(f"{team_name} has been given an additional sacrifice.")
+            return
+        await ctx.send("Could not give sacrifice to member.")
+
     @commands.command(pass_context=True)
     @commands.has_role("Team Leader")
     async def create_team(self, ctx, team_name):
