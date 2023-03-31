@@ -346,6 +346,7 @@ class CardDatabase():
             values = [new_sacrifices, team_name]
             self.db_cursor.execute("UPDATE competition SET sacrifices = ? WHERE team_name = ?", values)
             self.db.commit()
+            return team_name
         except Exception as e:
             print(f"give_sacrifices: ERROR - {e}")
             return False
